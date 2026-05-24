@@ -10,10 +10,23 @@ export interface LaunchState {
   error: any;
 }
 
+const getInitialFavorites = (): string[] => {
+  if (typeof window !== 'undefined' && window.localStorage) {
+    try {
+      const stored = localStorage.getItem('favorite_launches');
+      return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+      console.error('Error reading favorites from localStorage', e);
+      return [];
+    }
+  }
+  return [];
+};
+
 export const initialState: LaunchState = {
   launches: [],
   selectedLaunch: null,
-  favoriteIds: [],
+  favoriteIds: getInitialFavorites(),
   loading: false,
   error: null
 };
@@ -29,6 +42,15 @@ export const launchReducer = createReducer(
     const favoriteIds = isFavorite
       ? state.favoriteIds.filter(id => id !== launchId)
       : [...state.favoriteIds, launchId];
+    
+    if (typeof window !== 'undefined' && window.localStorage) {
+      try {
+        localStorage.setItem('favorite_launches', JSON.stringify(favoriteIds));
+      } catch (e) {
+        console.error('Error writing favorites to localStorage', e);
+      }
+    }
+
     return { ...state, favoriteIds };
   }),
 
