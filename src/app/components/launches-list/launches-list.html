@@ -1,26 +1,38 @@
 <div class="container-launches">
   <h1 class="mat-headline-medium title">SpaceX Launch Explorer</h1>
 
-
   <mat-form-field appearance="outline" class="search-field">
     <mat-label>Search for a mission...</mat-label>
     <input 
       matInput
       type="text" 
-      [(ngModel)]="searchTerm" 
-      (ngModelChange)="onSearchChange()" 
+      [ngModel]="searchTerm$ | async" 
+      (ngModelChange)="onSearchChange($event)" 
       placeholder="Ex. Crew-1"
     />
     <mat-icon matSuffix>search</mat-icon>
   </mat-form-field>
 
+  <div class="loading-container" *ngIf="loading$ | async">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
 
-  <div class="launches-grid">
-    <mat-card *ngFor="let launch of filteredLaunches" class="launch-card">
-      <mat-card-header>
-        <img mat-card-avatar [src]="launch.links?.patch?.small" alt="Mission's patch">
+  <div class="launches-grid" *ngIf="!(loading$ | async)">
+    <mat-card 
+      *ngFor="let launch of launches$ | async; trackBy: trackByLaunchId" 
+      class="launch-card"
+      [routerLink]="['/launch', launch.id]"
+    >
+      <mat-card-header class="card-header-layout">
+        <img mat-card-avatar [src]="launch.links?.patch?.small || 'assets/placeholder.png'" alt="Mission's patch">
         <mat-card-title>{{ launch.name }}</mat-card-title>
         <mat-card-subtitle>Flight n°{{ launch.flight_number }}</mat-card-subtitle>
+        <div class="spacer"></div>
+        <button mat-icon-button class="favorite-button" (click)="onToggleFavorite($event, launch.id)">
+          <mat-icon [color]="launch.isFavorite ? 'accent' : ''">
+            {{ launch.isFavorite ? 'star' : 'star_border' }}
+          </mat-icon>
+        </button>
       </mat-card-header>
 
       <mat-card-content class="card-content">
@@ -36,6 +48,7 @@
             {{ launch.success ? 'Success' : 'Failure' }}
           </mat-chip>
         </mat-chip-set>
+        <button mat-button color="primary">Details</button>
       </mat-card-actions>
     </mat-card>
   </div>
