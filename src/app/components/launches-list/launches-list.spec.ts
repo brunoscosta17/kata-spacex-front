@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideMockStore } from '@ngrx/store/testing';
 
 import { LaunchesListComponent } from './launches-list';
 
@@ -9,6 +10,18 @@ describe('LaunchesList', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [LaunchesListComponent],
+      providers: [
+        provideMockStore({
+          initialState: {
+            launch: {
+              launches: [],
+              favoriteIds: [],
+              loading: false,
+              error: null
+            }
+          }
+        })
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(LaunchesListComponent);

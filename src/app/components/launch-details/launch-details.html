@@ -1,0 +1,220 @@
+<div class="details-wrapper">
+  <!-- Navigation Header -->
+  <div class="navigation-bar">
+    <button mat-icon-button routerLink="/" aria-label="Go back to mission list">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <span class="nav-title">Back to Missions</span>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading$ | async">
+    <mat-spinner diameter="60" color="primary"></mat-spinner>
+    <p class="loading-text">Retrieving mission telemetry...</p>
+  </div>
+
+  <!-- Empty/Error State -->
+  <div class="error-container" *ngIf="!(loading$ | async) && !(launch$ | async)">
+    <mat-icon class="error-icon">error_outline</mat-icon>
+    <h2>Mission Not Found</h2>
+    <p>We couldn't retrieve the telemetry for this mission. It may have been aborted or deleted.</p>
+    <button mat-flat-button color="primary" routerLink="/">Return to Explorer</button>
+  </div>
+
+  <!-- Details Content -->
+  <div class="details-container" *ngIf="!(loading$ | async) && (launch$ | async) as launch">
+    
+    <!-- Hero Banner Card -->
+    <mat-card class="hero-card">
+      <div class="hero-layout">
+        <div class="patch-container">
+          <img 
+            class="mission-patch" 
+            [src]="launch.links?.patch?.large || launch.links?.patch?.small || 'assets/placeholder.png'" 
+            alt="{{ launch.name }} Mission Patch"
+          />
+        </div>
+        <div class="hero-info">
+          <div class="title-row">
+            <h1 class="mission-title">{{ launch.name }}</h1>
+            <button 
+              mat-icon-button 
+              class="favorite-button" 
+              (click)="onToggleFavorite(launch.id)"
+              [title]="launch.isFavorite ? 'Remove from favorites' : 'Add to favorites'"
+            >
+              <mat-icon [color]="launch.isFavorite ? 'accent' : ''">
+                {{ launch.isFavorite ? 'star' : 'star_border' }}
+              </mat-icon>
+            </button>
+          </div>
+          <p class="flight-number">Flight n°{{ launch.flight_number }}</p>
+          
+          <div class="metadata-chips">
+            <mat-chip-set>
+              <mat-chip [class.status-success]="launch.success" [class.status-error]="!launch.success">
+                <mat-icon class="chip-icon">{{ launch.success ? 'check_circle' : 'cancel' }}</mat-icon>
+                {{ launch.success ? 'Successful Launch' : 'Failed Launch' }}
+              </mat-chip>
+              <mat-chip class="upcoming-chip" *ngIf="launch.upcoming">
+                <mat-icon class="chip-icon">schedule</mat-icon>
+                Upcoming
+              </mat-chip>
+            </mat-chip-set>
+          </div>
+        </div>
+      </div>
+    </mat-card>
+
+    <!-- Main Grid Layout -->
+    <div class="content-grid">
+      
+      <!-- Left Column: Mission Synopsis & Specs -->
+      <div class="info-column">
+        <mat-card class="section-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>description</mat-icon> Mission Synopsis
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content class="synopsis-content">
+            <p *ngIf="launch.details; else noDetails">
+              {{ launch.details }}
+            </p>
+            <ng-template #noDetails>
+              <p class="no-details-text">
+                No official details or description have been recorded for this mission in the SpaceX archive.
+              </p>
+            </ng-template>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="section-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>settings_input_component</mat-icon> Launch Specifications
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content class="specs-grid">
+            <div class="spec-item">
+              <span class="spec-label">Launch Date (Local)</span>
+              <span class="spec-value">{{ launch.date_local | date:'EEEE, dd MMMM yyyy, HH:mm' }}</span>
+            </div>
+            <div class="spec-item" *ngIf="launch.static_fire_date_utc">
+              <span class="spec-label">Static Fire Date</span>
+              <span class="spec-value">{{ launch.static_fire_date_utc | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-label">Rocket Identifier</span>
+              <span class="spec-value rocket-id">{{ launch.rocket }}</span>
+            </div>
+            <div class="spec-item" *ngIf="launch.launchpad">
+              <span class="spec-label">Launchpad Site</span>
+              <span class="spec-value">{{ launch.launchpad }}</span>
+            </div>
+            <div class="spec-item" *ngIf="launch.window !== null">
+              <span class="spec-label">Launch Window</span>
+              <span class="spec-value">{{ launch.window }} seconds</span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Right Column: Media & External Resources -->
+      <div class="media-column">
+        <mat-card class="section-card" *ngIf="launch.links?.youtube_id">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>play_circle_filled</mat-icon> Mission Webcast
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content class="webcast-content">
+            <div class="iframe-container">
+              <iframe 
+                [src]="getSafeYoutubeUrl(launch.links.youtube_id)"
+                title="SpaceX Webcast Player"
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                allowfullscreen
+              ></iframe>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="section-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>open_in_new</mat-icon> External Resources
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content class="links-grid">
+            <a 
+              mat-stroked-button 
+              color="primary" 
+              [href]="launch.links?.wikipedia" 
+              target="_blank" 
+              *ngIf="launch.links?.wikipedia"
+              class="resource-link-btn"
+            >
+              <mat-icon>library_books</mat-icon>
+              Wikipedia Article
+            </a>
+            <a 
+              mat-stroked-button 
+              color="primary" 
+              [href]="launch.links?.article" 
+              target="_blank" 
+              *ngIf="launch.links?.article"
+              class="resource-link-btn"
+            >
+              <mat-icon>newspaper</mat-icon>
+              Press Article
+            </a>
+            <a 
+              mat-stroked-button 
+              color="primary" 
+              [href]="launch.links?.reddit?.campaign || launch.links?.reddit?.launch" 
+              target="_blank" 
+              *ngIf="launch.links?.reddit?.campaign || launch.links?.reddit?.launch"
+              class="resource-link-btn"
+            >
+              <mat-icon>forum</mat-icon>
+              Reddit Campaign
+            </a>
+            <a 
+              mat-stroked-button 
+              color="primary" 
+              [href]="launch.links?.presskit" 
+              target="_blank" 
+              *ngIf="launch.links?.presskit"
+              class="resource-link-btn"
+            >
+              <mat-icon>description</mat-icon>
+              Official Press Kit
+            </a>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+    </div>
+
+    <!-- Flickr Image Gallery -->
+    <div class="gallery-container" *ngIf="launch.links?.flickr?.original?.length">
+      <mat-card class="section-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>photo_library</mat-icon> Mission Gallery
+          </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="flickr-grid">
+            <div class="flickr-item" *ngFor="let photo of launch.links.flickr.original; let i = index">
+              <img [src]="photo" alt="{{ launch.name }} gallery photo #{{ i + 1 }}" loading="lazy" />
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+  </div>
+</div>
