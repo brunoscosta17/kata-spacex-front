@@ -24,7 +24,7 @@
       [routerLink]="['/launch', launch.id]"
     >
       <mat-card-header class="card-header-layout">
-        <img mat-card-avatar [src]="launch.links?.patch?.small || 'assets/placeholder.png'" alt="Mission's patch">
+        <img mat-card-avatar [src]="launch.links.patch.small || 'assets/placeholder.png'" alt="Mission's patch">
         <mat-card-title>{{ launch.name }}</mat-card-title>
         <mat-card-subtitle>Flight n°{{ launch.flight_number }}</mat-card-subtitle>
         <div class="spacer"></div>

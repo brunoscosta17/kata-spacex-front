@@ -30,7 +30,7 @@
         <div class="patch-container">
           <img 
             class="mission-patch" 
-            [src]="launch.links?.patch?.large || launch.links?.patch?.small || 'assets/placeholder.png'" 
+            [src]="launch.links.patch.large || launch.links.patch.small || 'assets/placeholder.png'" 
             alt="{{ launch.name }} Mission Patch"
           />
         </div>
@@ -122,7 +122,7 @@
 
       <!-- Right Column: Media & External Resources -->
       <div class="media-column">
-        <mat-card class="section-card" *ngIf="launch.links?.youtube_id">
+        <mat-card class="section-card" *ngIf="launch.links.youtube_id">
           <mat-card-header>
             <mat-card-title>
               <mat-icon>play_circle_filled</mat-icon> Mission Webcast
@@ -151,9 +151,9 @@
             <a 
               mat-stroked-button 
               color="primary" 
-              [href]="launch.links?.wikipedia" 
+              [href]="launch.links.wikipedia" 
               target="_blank" 
-              *ngIf="launch.links?.wikipedia"
+              *ngIf="launch.links.wikipedia"
               class="resource-link-btn"
             >
               <mat-icon>library_books</mat-icon>
@@ -162,9 +162,9 @@
             <a 
               mat-stroked-button 
               color="primary" 
-              [href]="launch.links?.article" 
+              [href]="launch.links.article" 
               target="_blank" 
-              *ngIf="launch.links?.article"
+              *ngIf="launch.links.article"
               class="resource-link-btn"
             >
               <mat-icon>newspaper</mat-icon>
@@ -173,9 +173,9 @@
             <a 
               mat-stroked-button 
               color="primary" 
-              [href]="launch.links?.reddit?.campaign || launch.links?.reddit?.launch" 
+              [href]="launch.links.reddit.campaign || launch.links.reddit.launch" 
               target="_blank" 
-              *ngIf="launch.links?.reddit?.campaign || launch.links?.reddit?.launch"
+              *ngIf="launch.links.reddit.campaign || launch.links.reddit.launch"
               class="resource-link-btn"
             >
               <mat-icon>forum</mat-icon>
@@ -184,9 +184,9 @@
             <a 
               mat-stroked-button 
               color="primary" 
-              [href]="launch.links?.presskit" 
+              [href]="launch.links.presskit" 
               target="_blank" 
-              *ngIf="launch.links?.presskit"
+              *ngIf="launch.links.presskit"
               class="resource-link-btn"
             >
               <mat-icon>description</mat-icon>
@@ -199,7 +199,7 @@
     </div>
 
     <!-- Flickr Image Gallery -->
-    <div class="gallery-container" *ngIf="launch.links?.flickr?.original?.length">
+    <div class="gallery-container" *ngIf="launch.links.flickr.original.length">
       <mat-card class="section-card">
         <mat-card-header>
           <mat-card-title>
